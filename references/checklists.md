@@ -1,57 +1,57 @@
-# 检查清单与置信度规则
+# Checklists and Confidence Rules
 
-## 替代假设检查清单
+## Alternative-Hypothesis Checklist
 
-对每个推断，逐项检查并显式排除替代解释。未排除的列入报告"替代假设"部分。
+For each inference, check each item and explicitly exclude alternative explanations. List unexcluded ones in the report's "Alternative hypotheses" section.
 
-### 专利缺口的替代解释
-- [ ] A 的专利缺口是否源于交叉授权协议？（查公告 / 新闻）
-- [ ] A 是否通过并购继承了 T 的使用权？（查并购历史）
-- [ ] T 是否属于专利池？（如 Avanci、MPEG-LA、Via Licensing）
-- [ ] T 是否有开源实现？（查开源项目）
-- [ ] A 是否通过子公司 / 关联方持有 T 专利？（查关联实体专利）
+### Alternative explanations for the patent gap
+- [ ] Does A's patent gap stem from a cross-licensing agreement? (check announcements / news)
+- [ ] Did A inherit T usage rights via an acquisition? (check M&A history)
+- [ ] Does T belong to a patent pool? (e.g., Avanci, MPEG-LA, Via Licensing)
+- [ ] Is there an open-source implementation of T? (check open-source projects)
+- [ ] Does A hold T patents via a subsidiary / affiliate? (check related-entity patents)
 
-### "B 进入产业链"的替代解释
-- [ ] B 是否为 NPE（非实施实体）？若是，B 仅授权不生产，未进入产业链
-- [ ] A 是否通过第三方模组间接使用 B 专利？第三方才是供应商，B 是三方的上游
-- [ ] B 是否仅是专利授权方，与 A 无实体交易？
-- [ ] A 与 B 的关联是否为纯财务投资，非业务合作？
+### Alternative explanations for "B entered the supply chain"
+- [ ] Is B an NPE (non-practicing entity)? If so, B licenses only and is not in the supply chain
+- [ ] Does A use B's patent indirectly via a third-party module? The third party is the supplier; B is its upstream
+- [ ] Is B only a patent licensor with no physical transaction with A?
+- [ ] Is the A-B tie purely financial investment, not business cooperation?
 
-## 反情报对抗检查清单
+## Counter-Intelligence Checklist
 
-被研究方若有反情报意识，可能用以下手段掩盖真实供应链。逐项检查：
+If the subject has counter-intelligence awareness, it may use these means to hide the real supply chain. Check each:
 
-### 专利归属侧
-- [ ] B 的专利归属是否异常分散？（多个壳公司 / 关联方分别持有）
-- [ ] 是否存在专为持有专利设立的壳公司？（注册资本低、无实际经营、地址异常）
-- [ ] 专利转让记录是否频繁？（可能为掩盖真实归属的转让）
+### Patent-ownership side
+- [ ] Is B's patent ownership abnormally dispersed? (multiple shell companies / affiliates holding separately)
+- [ ] Is there a shell company set up specifically to hold patents? (low registered capital, no real operations, abnormal address)
+- [ ] Are patent transfers frequent? (possibly to obscure true ownership)
 
-### A 的专利策略侧
-- [ ] A 是否故意不申请专利以隐藏技术路线？（"缺口"可能是主动选择而非被动依赖）
-- [ ] A 的专利申请是否与其实际产品技术不匹配？（声东击西）
+### A's patent-strategy side
+- [ ] Does A deliberately not file patents to hide its tech roadmap? (the "gap" may be an active choice, not passive dependency)
+- [ ] Do A's patent filings mismatch its actual product technology? (decoy filings)
 
-### 异常信号
-- [ ] A 的供应商信息披露是否异常简略或刻意模糊？
-- [ ] 关键技术人才是否通过劳务派遣 / 外包而非直接雇佣？（掩盖人才流动）
-- [ ] 是否存在频繁变更公司名 / 法人 / 股东的关联实体？
+### Anomaly signals
+- [ ] Is A's supplier-disclosure abnormally terse or deliberately vague?
+- [ ] Are key technical staff employed via labor dispatch / outsourcing rather than directly? (hiding talent flow)
+- [ ] Are there related entities with frequent changes of company name / legal representative / shareholders?
 
-存在以上任一异常 → 在报告中标注"反情报风险"，提高警惕，建议补充实地调研或一手信源验证。
+If any anomaly exists → flag "counter-intelligence risk" in the report, raise vigilance, and recommend field research or primary-source verification.
 
-## 置信度评分规则
+## Confidence Scoring Rules
 
-### 单线索置信度
+### Per-lead confidence
 
-| 线索 | 高 | 中 | 低 |
-|------|----|----|-----|
-| 专利归属 | B 持有 T 核心专利且时序合理 | B 持有 T 相关专利但时序存疑 | 仅找到 T 专利但权人不明确 |
-| 工商关联 | 合资公司 / 相互投资 | 高管重叠 | 同地址 / 同法人等弱关联 |
-| 人才流动 | 多名 B 技术骨干入职 A | 单名骨干入职 | 仅招聘信息提及 B 背景 |
-| 采购招标 | 直接提及 B 为供应商 | 提及 B 的品类 | 仅品类相关无明确指向 |
-| 产品拆解 | 物理确认含 B 部件 | 拆解报告提及但未确认 | 无拆解报告 |
+| Lead | High | Medium | Low |
+|------|------|--------|-----|
+| Patent ownership | B holds T's core patents with valid timeline | B holds T-related patents but timeline is questionable | T patents found but owner unclear |
+| Corporate affiliation | JV / mutual investment | Executive overlap | Same address / same legal rep (weak) |
+| Talent flow | Multiple B technical staff joined A | Single key person joined | Job postings only mention B background |
+| Procurement | B directly named as supplier | B's category mentioned | Category-related but no clear pointer |
+| Product teardown | Physically confirmed B component | Teardown report mentions but unconfirmed | No teardown report |
 
-### 综合置信度
+### Overall confidence
 
-- **高**：≥2 条高置信线索相互印证
-- **中**：1 高 + 1 中相互印证，或多条中置信线索部分印证
-- **低**：仅 1 条线索命中，或线索间存在矛盾
-- **无法推断**：0 条线索命中
+- **High**: ≥2 high-confidence leads corroborating
+- **Medium**: 1 high + 1 medium corroborating, or multiple medium leads partially corroborating
+- **Low**: only 1 lead hit, or leads contradict each other
+- **Cannot infer**: 0 leads hit

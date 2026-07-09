@@ -1,102 +1,102 @@
-# 详细工作流
+# Detailed Workflow
 
-## Step 1：触发线索识别
+## Step 1: Trigger lead identification
 
-**目标**：明确分析对象，识别潜在的专利缺口。
+**Goal**: Define the analysis target and identify a potential patent gap.
 
-**操作**：
-1. 确认标的 A（公司全称、股票代码）
-2. 识别 A 的产品 P 及其使用的关键技术 T
-   - 若用户未指定 T，从 A 的产品介绍、年报、招股书、研报中提取核心技术点
-3. 初步判断 A 是否可能缺少 T 的专利
-   - 若 A 的产品用了 T，但 A 的主营业务 / 技术方向与 T 不重合，缺口可能性高
+**Operations**:
+1. Confirm target A (full company name, ticker)
+2. Identify A's product P and the key technology T it uses
+   - If T is not specified by the user, extract core technologies from A's product docs, annual report, prospectus, research reports
+3. Preliminarily judge whether A may lack T's patents
+   - If A's product uses T but A's core business / R&D direction does not overlap with T, gap likelihood is high
 
-**输出**：A、P、T 三元组 + 缺口初步判断
+**Output**: A, P, T triple + preliminary gap judgment
 
-## Step 2：专利缺口确认
+## Step 2: Patent gap confirmation
 
-**目标**：用数据确认 A 是否真的缺少 T 的相关专利，并排除合法使用的可能。
+**Goal**: Confirm with data whether A truly lacks T-related patents, and rule out legitimate-use scenarios.
 
-**操作**：
-1. 用专利检索工具（tushare 专利接口 / 智慧芽）检索 A 名下的专利
-   - 检索维度：A 的公司名 + 技术 T 的关键词 + IPC 分类号
-   - 检索范围：中国专利 + 美国专利 + PCT（视 A 的市场范围）
-   - 注意：A 可能通过子公司 / 关联方持有专利，需检索 A 的关联实体
-2. 判定缺口：
-   - A 名下（含关联方）无 T 相关专利 → 缺口成立
-   - A 有 T 相关专利但数量显著低于行业平均 → 部分缺口
-   - A 有充足 T 相关专利 → 缺口不成立，终止本流程
-3. 排除合法使用情形（若缺口成立）：
-   - 交叉授权：A 是否与其他公司有交叉授权协议（查公告 / 新闻）
-   - 并购继承：A 是否通过并购获得 T 的使用权
-   - 专利池：T 是否属于某专利池（如 Avanci、MPEG-LA）
-   - 开源许可：T 是否有开源实现
+**Operations**:
+1. Search A's patents using patent search tools (tushare patent API / PatSnap)
+   - Dimensions: A's company name + technology T keywords + IPC class
+   - Scope: CN patents + US patents + PCT (per A's market coverage)
+   - Note: A may hold patents via subsidiaries / affiliates — search A's related entities
+2. Determine gap:
+   - A (incl. affiliates) has zero T-related patents → gap confirmed
+   - A has T-related patents but count is significantly below industry average → partial gap
+   - A has sufficient T-related patents → no gap, terminate
+3. Rule out legitimate-use scenarios (if gap confirmed):
+   - Cross-licensing: does A have a cross-licensing agreement with anyone? (check announcements / news)
+   - Acquisition inheritance: did A acquire T usage rights via M&A?
+   - Patent pool: does T belong to a pool (e.g., Avanci, MPEG-LA)?
+   - Open-source: is there an open-source implementation of T?
 
-**输出**：缺口判定（成立 / 部分 / 不成立）+ 已排除的合法使用情形
+**Output**: Gap determination (confirmed / partial / none) + excluded legitimate-use scenarios
 
-## Step 3：多线索并行验证
+## Step 3: Multi-lead parallel verification
 
-**目标**：激活 5 条线索并行验证，每条线索独立打置信度。详细置信度规则见 `checklists.md`。
+**Goal**: Activate 5 leads in parallel, each with an independent confidence score. Detailed scoring rules in `checklists.md`.
 
-### 线索 1 · 专利归属（置信度：中）
-- 检索技术 T 的专利权人，锁定主要持有方 B
-- 检查 B 的专利状态：授权 / 实审 / 失效 / 转让
-- 时序检查：B 的专利申请时间 vs A 的产品上市时间（A 的产品须晚于 B 的专利申请）
-- 注意：B 可能是 NPE（非实施实体），只授权不生产
+### Lead 1 · Patent ownership (confidence: medium)
+- Search technology T's patent holders, identify primary owner B
+- Check B's patent status: granted / under examination / lapsed / transferred
+- Timeline check: B's patent filing date vs A's product launch date (A's product must postdate B's filing)
+- Note: B may be an NPE (non-practicing entity), licensing only
 
-### 线索 2 · 工商关联（置信度：高）
-- 用天眼查 / 企查查检索 A 与 B 的关联关系
-- 检查：相互投资、合资公司、高管重叠、历史变更
-- 强关联（合资 / 投资）→ 高置信；弱关联（高管重叠）→ 中置信
+### Lead 2 · Corporate affiliation (confidence: high)
+- Search A-B affiliation via Tianyancha / Qichacha
+- Check: mutual investment, joint ventures, executive overlap, historical changes
+- Strong tie (JV / investment) → high confidence; weak tie (executive overlap) → medium
 
-### 线索 3 · 人才流动（置信度：中）
-- 检索 B → A 的技术骨干招聘 / 跳槽记录
-- 用 WebSearch + 招聘网站 + 领英类信息
-- 多名 B 的技术骨干入职 A → 技术依赖可能性高
+### Lead 3 · Talent flow (confidence: medium)
+- Search B→A technical-hire / job-change records
+- Use WebSearch + job sites + LinkedIn-type sources
+- Multiple B technical staff joining A → high likelihood of technology dependency
 
-### 线索 4 · 采购招标（置信度：高）
-- 检索 A 的招标公告、供应商大会披露、年报供应商信息
-- 是否直接提及 B，或提及 B 的产品品类
-- 直接提及 B → 高置信；提及品类 → 中置信
+### Lead 4 · Procurement (confidence: high)
+- Search A's tender announcements, supplier-day disclosures, annual-report supplier info
+- Whether B is directly named, or B's product category is mentioned
+- Directly names B → high confidence; category only → medium
 
-### 线索 5 · 产品拆解（置信度：极高）
-- 检索 A 产品 P 的拆解报告、BOM 分析
-- 是否物理包含 B 的部件 / 芯片
-- 物理证据 → 极高置信（最强证据）
+### Lead 5 · Product teardown (confidence: very high)
+- Search teardown reports / BOM analysis of A's product P
+- Whether it physically contains B's components / chips
+- Physical evidence → very high confidence (strongest evidence)
 
-**输出**：5 条线索各自的命中情况 + 单线索置信度
+**Output**: Per-lead hit status + per-lead confidence
 
-## Step 4：多线索融合 + 置信度评估
+## Step 4: Multi-lead fusion + confidence scoring
 
-**目标**：交叉验证，给出综合判定。
+**Goal**: Cross-validate and produce an overall determination.
 
-**融合规则**：
-- ≥2 条高置信线索相互印证 → 综合置信度"高"，可定论
-- 1 条高置信 + 1 条中置信相互印证 → 综合置信度"中"
-- 仅 1 条线索命中，无交叉印证 → 综合置信度"低"，只作假设
-- 0 条线索命中 → 终止，无法推断
+**Fusion rules**:
+- ≥2 high-confidence leads corroborating → overall "high", can conclude
+- 1 high + 1 medium corroborating → overall "medium"
+- Only 1 lead hit, no corroboration → overall "low", hypothesis only
+- 0 leads hit → terminate, cannot infer
 
-**角色判定**：
-- 线索 4 / 5 命中（采购 / 拆解）→ B 是 A 的直接供应商
-- 仅线索 1 / 2 命中（专利 / 工商）→ B 可能是技术授权方或间接关联
-- 线索 1 命中但 B 是 NPE → B 仅授权，未进入产业链
+**Role determination**:
+- Leads 4/5 hit (procurement / teardown) → B is A's direct supplier
+- Only leads 1/2 hit (patent / corporate) → B may be technology licensor or indirect affiliation
+- Lead 1 hit but B is NPE → B licenses only, not in supply chain
 
-**输出**：综合置信度 + B 的角色判定
+**Output**: Overall confidence + B's role determination
 
-## Step 5：替代假设检查
+## Step 5: Alternative-hypothesis check
 
-详见 `checklists.md` 的替代假设检查清单。对每个推断显式排除替代解释，未排除的列入报告。
+See the alternative-hypothesis checklist in `checklists.md`. Explicitly exclude alternative explanations for each inference; list unexcluded ones in the report.
 
-## Step 6：反情报对抗检查
+## Step 6: Counter-intelligence check
 
-详见 `checklists.md` 的反情报对抗检查清单。检查被研究方是否用反情报手段掩盖真实供应链。
+See the counter-intelligence checklist in `checklists.md`. Check whether the subject uses counter-intelligence means to hide the real supply chain.
 
-## Step 7：输出报告
+## Step 7: Output report
 
-按 SKILL.md 的输入输出契约组织报告。报告必须包含：
-- 关系判定（含 B 的角色）
-- 证据链（5 线索命中表 + 置信度）
-- 综合置信度 + 依据
-- 替代假设清单（已排除 / 未排除）
-- 反情报风险标注
-- 后续验证建议
+Organize the report per the I/O contract in SKILL.md. The report must include:
+- Relationship determination (incl. B's role)
+- Evidence chain (5-lead hit table + confidence)
+- Overall confidence + rationale
+- Alternative-hypothesis list (excluded / unexcluded)
+- Counter-intelligence risk flag
+- Follow-up verification suggestions
