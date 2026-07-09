@@ -2,11 +2,17 @@
 
 通过"专利缺口"反推产业链关系的竞争情报工作流 skill，适用于 WorkBuddy / Codebuddy。
 
-## 这是什么
+A competitive intelligence workflow skill that infers supply-chain relationships from patent gaps. For WorkBuddy / Codebuddy.
+
+---
+
+## 中文说明
+
+### 这是什么
 
 当研究科技股 / 硬件 / 制造 / 医药类公司时，发现标的 A 的产品使用了技术 T，但 A 没有 T 的相关专利——这套 skill 引导从专利缺口切入，激活专利归属 / 工商关联 / 人才流动 / 采购招标 / 产品拆解五条线索并行验证，并内置替代假设检查与反情报对抗检查，输出带置信度的产业链关系推断报告。
 
-## 核心设计
+### 核心设计
 
 - **专利降级为入口线索**：专利缺口只触发验证，不直接定论
 - **多线索交叉印证**：≥2 条高置信线索相互印证方可定论
@@ -14,48 +20,75 @@
 - **反情报对抗必查**：警惕被研究方用壳公司 / 分散专利掩盖真实供应链
 - **触发点前移**：不依赖 agent 自动深挖到专利缺口，触发词覆盖"科技股研究 / 行业分析"等更早的意图入口
 
-## 安装
-
-将本仓库克隆到 WorkBuddy 的 skills 目录：
+### 安装
 
     git clone https://github.com/tianzhiceng297-boop/patent-gap-supply-chain.git ~/.workbuddy/skills/patent-gap-supply-chain
 
 或手动复制 `SKILL.md` 和 `references/` 到 `~/.workbuddy/skills/patent-gap-supply-chain/`。
 
-## 文件结构
-
-- `SKILL.md` — 核心：触发词、适用性前置判断、7 步工作流概要、输入输出契约、工具集成、关键原则
-- `references/workflow.md` — 7 步详细操作指引（含每步判定规则、工具调用方式、输出格式）
-- `references/checklists.md` — 替代假设检查清单、反情报对抗检查清单、置信度评分规则
-
-## 触发场景
-
-用户说以下内容时触发：
+### 触发场景
 
 - "研究 XX 科技股"
 - "分析 XX 公司的供应链"
 - "查一下 XX 技术的专利归属"
 - "XX 公司用了某技术但好像没专利"
 - "识别 XX 的供应商"
-- "做 XX 行业的产业链分析"
 
-## 工作流
-
-1. **触发线索识别**：确认标的 A、产品 P、技术 T
-2. **专利缺口确认**：检索 A 专利库，排除交叉授权 / 并购 / 专利池 / 开源
-3. **多线索并行验证**：专利归属 / 工商关联 / 人才流动 / 采购招标 / 产品拆解
-4. **多线索融合 + 置信度评估**：≥2 条高置信相互印证方可定论
-5. **替代假设检查**：显式排除替代解释
-6. **反情报对抗检查**：检查专利归属异常分散 / 壳公司特征
-7. **输出报告**：关系判定 + 证据链 + 置信度 + 替代假设 + 反情报风险 + 后续验证建议
-
-## 适用边界
+### 适用边界
 
 | 标的类型 | 适用性 |
 |---------|--------|
 | 硬件 / 制造 / 医药 / 材料 | 强适用 |
 | 软件 / 互联网 | 弱适用（降低置信度） |
 | 商业模式创新 | 不适用 |
+
+---
+
+## English
+
+### What it is
+
+When researching tech / hardware / manufacturing / pharma companies, you find that target A's product uses technology T, but A holds no patents related to T. This skill starts from the patent gap, activates five parallel verification leads — patent ownership, corporate affiliation, talent flow, procurement, product teardown — with built-in alternative-hypothesis checks and counter-intelligence checks, outputting a confidence-scored supply-chain inference report.
+
+### Core design
+
+- **Patents demoted to an entry lead**: a patent gap triggers verification but does not directly conclude
+- **Multi-lead corroboration**: ≥2 high-confidence leads corroborating required to conclude
+- **Alternative hypotheses are mandatory**: explicitly exclude cross-licensing / NPE / third-party-module explanations
+- **Counter-intelligence check is mandatory**: watch for shell companies / dispersed patents hiding the real supply chain
+- **Trigger point moved upstream**: does not rely on the agent autonomously digging to the patent gap; trigger keywords cover earlier intent entries like "tech stock research / industry analysis"
+
+### Installation
+
+    git clone https://github.com/tianzhiceng297-boop/patent-gap-supply-chain.git ~/.workbuddy/skills/patent-gap-supply-chain
+
+Or manually copy `SKILL.md` and `references/` to `~/.workbuddy/skills/patent-gap-supply-chain/`.
+
+### Trigger scenarios
+
+- "Research [tech stock]"
+- "Analyze [company]'s supply chain"
+- "Look up patent ownership of [technology]"
+- "[Company] uses a technology but seems to have no patents"
+- "Identify [company]'s suppliers"
+
+### Applicability
+
+| Target type | Applicability |
+|-------------|---------------|
+| Hardware / manufacturing / pharma / materials | Strong |
+| Software / internet | Weak (reduce confidence) |
+| Business-model innovation | Not applicable |
+
+---
+
+## File structure
+
+- `SKILL.md` — core: triggers, applicability pre-check, 7-step workflow overview, I/O contract, tool integration, key principles
+- `references/workflow.md` — detailed 7-step operations (decision rules, tool invocation, output format)
+- `references/checklists.md` — alternative-hypothesis checklist, counter-intelligence checklist, confidence scoring rules
+- `examples/sample-output.md` — worked example showing the full report format
+- `CHANGELOG.md` — version history
 
 ## License
 
