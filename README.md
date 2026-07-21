@@ -10,18 +10,27 @@ A competitive intelligence workflow skill that infers supply-chain relationships
 
 ### 这是什么
 
-当研究科技股 / 硬件 / 制造 / 医药类公司时，发现标的 A 的产品使用了技术 T，但 A 没有 T 的相关专利——这套 skill 引导从专利缺口切入，**先判断缺口是真实外部依赖还是商业秘密/know-how保护**，再激活专利归属 / 工商关联 / 人才流动 / 采购招标 / 产品拆解五条线索并行验证，并内置替代假设检查与反情报对抗检查，输出带置信度的产业链关系推断报告。
+当研究科技股 / 硬件 / 制造 / 医药类公司时，发现标的 A 的产品使用了技术 T，但 A 没有 T 的相关专利——这套 skill 引导从专利缺口切入，**先判断缺口是真实外部依赖还是商业秘密/know-how保护**，再激活五条线索并行验证，竞对三角验证增强信号，财务数据交叉验证定论，输出带置信度的产业链关系推断报告。
 
-**v0.2.0 新增**：商业秘密/know-how 评估。专利缺口不自动等于依赖——很多硬科技公司主动选择不申请专利（工艺、配方、know-how 更适合保密）。本 skill 通过 6 项指标评估商业秘密可能性，仅在采购/拆解等物理证据覆盖时才可推翻商业秘密假设。
+**v0.3.0 新增**：
+- **竞对三角验证**：A 的同行如果也缺相同专利、也指向同一家供应商 → 置信度大幅提升
+- **反向工作流**（供应商→客户）：从技术垄断者出发，找下游依赖客户
+- **财务数据交叉验证**：供应商/客户集中度、应收账款、关联交易 — 没有财报佐证的推断置信度封顶
+- **行业特化参考**：半导体/制药/新能源/消费电子/材料五大行业指南
+- **真实案例**：歌尔股份 & Apple VR 供应链完整分析
+
+**v0.2.0**：商业秘密/know-how 评估（6 项指标）
 
 ### 核心设计
 
-- **商业秘密先排除再定论** (v0.2.0)：专利缺口可能是商业秘密保护策略，必须先评估
+- **商业秘密先排除再定论**：专利缺口可能是商业秘密保护策略，必须先评估
+- **竞对三角验证** (v0.3.0)：多同行同一缺口 → 同一供应商，是最强信号之一
+- **财务交叉验证** (v0.3.0)：无财报佐证的推断置信度最多"中等"，需供应商披露/客户集中度/应收账款等硬数据
+- **双向工作流** (v0.3.0)：正向（缺口→供应商）+ 反向（专利所有者→下游客户）
 - **专利降级为入口线索**：专利缺口只触发验证，不直接定论
-- **多线索交叉印证**：≥2 条高置信线索相互印证方可定论；商业秘密场景下需采购/拆解物理证据覆盖
+- **多线索交叉印证**：≥2 条高置信线索相互印证方可定论
 - **替代假设必查**：显式排除交叉授权 / NPE / 第三方模组 / 商业秘密等替代解释
-- **反情报对抗必查**：警惕被研究方用壳公司 / 分散专利掩盖真实供应链
-- **触发点前移**：不依赖 agent 自动深挖到专利缺口，触发词覆盖"科技股研究 / 行业分析"等更早的意图入口
+- **反情报对抗必查**：警惕壳公司 / 分散专利掩盖真实供应链
 
 ### 安装
 
@@ -43,10 +52,12 @@ A competitive intelligence workflow skill that infers supply-chain relationships
 ### 触发场景
 
 - "研究 XX 科技股"
-- "分析 XX 公司的供应链"
+- "分析 XX 公司的供应链 / 供应商"
 - "查一下 XX 技术的专利归属"
 - "XX 公司用了某技术但好像没专利"
 - "识别 XX 的供应商"
+- "XX 公司的下游客户有哪些？" (反向工作流)
+- "哪些公司依赖 XX 的技术？" (反向工作流)
 
 ### 适用边界
 
@@ -62,18 +73,27 @@ A competitive intelligence workflow skill that infers supply-chain relationships
 
 ### What it is
 
-When researching tech / hardware / manufacturing / pharma companies, you find that target A's product uses technology T, but A holds no patents related to T. This skill starts from the patent gap, **first evaluates whether the gap reflects true external dependency or deliberate trade secret / know-how protection**, then activates five parallel verification leads — patent ownership, corporate affiliation, talent flow, procurement, product teardown — with built-in alternative-hypothesis checks and counter-intelligence checks, outputting a confidence-scored supply-chain inference report.
+When researching tech / hardware / manufacturing / pharma companies, you find that target A's product uses technology T, but A holds no patents related to T. This skill starts from the patent gap, **first evaluates whether the gap reflects true external dependency or deliberate trade secret / know-how protection**, then activates five parallel verification leads, competitive triangulation, and financial cross-validation, outputting a confidence-scored supply-chain inference report.
 
-**New in v0.2.0**: Trade secret / know-how assessment. A patent gap does not automatically imply dependency — many deep-tech companies deliberately avoid patents (processes, formulations, know-how are better protected through secrecy). This skill evaluates trade secret likelihood via 6 indicators; only physical evidence from procurement/teardown leads can override a strong trade secret finding.
+**New in v0.3.0**:
+- **Competitive triangulation**: Cross-check A's peers for the same patent gap — multi-company corroboration is one of the strongest signals
+- **Reverse workflow** (supplier → clients): Start from a technology monopoly holder and identify downstream customers
+- **Financial cross-validation**: Supplier/customer concentration, AR data, related-party disclosures — no inference reaches "high" without financial corroboration
+- **Industry-specific guide**: Semiconductor, pharma, new energy, consumer electronics, materials verticals
+- **Real case study**: Goertek (歌尔股份) & Apple VR supply chain
+
+**v0.2.0**: Trade secret / know-how assessment (6 indicators)
 
 ### Core design
 
-- **Trade secrets ruled out before concluding** (v0.2.0): a patent gap may reflect trade secret strategy — must assess first
+- **Trade secrets ruled out before concluding**: patent gap may reflect trade secret strategy — must assess first
+- **Competitive triangulation** (v0.3.0): multi-peer same gap → same supplier is a top-tier signal
+- **Financial cross-validation required** (v0.3.0): no "high" confidence without financial corroboration
+- **Bidirectional workflow** (v0.3.0): forward (gap → supplier) + reverse (patent owner → downstream clients)
 - **Patents demoted to an entry lead**: a patent gap triggers verification but does not directly conclude
-- **Multi-lead corroboration**: ≥2 high-confidence leads corroborating required to conclude; trade secret scenarios require procurement/teardown physical evidence
-- **Alternative hypotheses are mandatory**: explicitly exclude cross-licensing / NPE / third-party-module / trade secret explanations
-- **Counter-intelligence check is mandatory**: watch for shell companies / dispersed patents hiding the real supply chain
-- **Trigger point moved upstream**: does not rely on the agent autonomously digging to the patent gap; trigger keywords cover earlier intent entries like "tech stock research / industry analysis"
+- **Multi-lead corroboration**: ≥2 high-confidence leads corroborating required to conclude
+- **Alternative hypotheses are mandatory**: explicitly exclude all alternative explanations
+- **Counter-intelligence check is mandatory**: watch for shell companies / dispersed patents
 
 ### Installation
 
@@ -95,10 +115,12 @@ Or manually copy `SKILL.md` and `references/` to `~/.workbuddy/skills/patent-gap
 ### Trigger scenarios
 
 - "Research [tech stock]"
-- "Analyze [company]'s supply chain"
+- "Analyze [company]'s supply chain / suppliers"
 - "Look up patent ownership of [technology]"
 - "[Company] uses a technology but seems to have no patents"
 - "Identify [company]'s suppliers"
+- "Who are [company]'s downstream customers?" (reverse workflow)
+- "Which companies depend on [technology]?" (reverse workflow)
 
 ### Applicability
 
@@ -112,10 +134,12 @@ Or manually copy `SKILL.md` and `references/` to `~/.workbuddy/skills/patent-gap
 
 ## File structure
 
-- `SKILL.md` — core: triggers, applicability pre-check, 8-step workflow overview (with trade secret assessment), I/O contract, tool integration, key principles
-- `references/workflow.md` — detailed 8-step operations (decision rules, tool invocation, trade secret assessment flow, output format)
-- `references/checklists.md` — alternative-hypothesis checklist, trade secret indicators checklist, counter-intelligence checklist, confidence scoring rules
-- `examples/sample-output.md` — worked example showing the full report format (updated with trade secret assessment section)
+- `SKILL.md` — core: triggers, direction selection, 10-step workflow (triangulation + financial cross-validation), I/O contract, tool integration, key principles
+- `references/workflow.md` — detailed 10-step operations + reverse workflow appendix
+- `references/checklists.md` — alternative hypotheses, trade secret indicators, triangulation checklist, financial cross-validation checklist, counter-intelligence, confidence scoring rules with 3-layer adjustment
+- `references/industry-guide.md` (v0.3.0) — vertical-specific guidance: semiconductor, pharma, new energy, consumer electronics, materials/chemicals
+- `examples/sample-output.md` — fictional case showing full 10-step report format
+- `examples/real-case.md` (v0.3.0) — real A-share case: Goertek & Apple VR supply chain
 - `CHANGELOG.md` — version history
 
 ## License

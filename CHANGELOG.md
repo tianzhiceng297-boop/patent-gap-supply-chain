@@ -3,6 +3,24 @@
 All notable changes to this skill are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/), adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-07-21
+
+### Added
+- **Competitive triangulation** (Step 5): Cross-verify A's patent gap against 3-10 industry peers. 3+ peers same gap → same B = +2 confidence boost. Triangulation checklist in `references/checklists.md`.
+- **Financial cross-validation** (Step 7): Mandatory financial corroboration. Checks: top-supplier disclosure, customer concentration, AR/AP patterns, related-party transactions. No financial corroboration → confidence capped at "medium". Checklist in `references/checklists.md`.
+- **Reverse workflow** (supplier → clients): Start from technology owner B, identify downstream customers. Full appendix in `references/workflow.md` (R1-R5 process).
+- **Industry-specific guide** (`references/industry-guide.md`): 5 verticals — semiconductor, pharma, new energy/battery, consumer electronics, materials/chemicals. Each with key signals, verification strategy, and A-share examples.
+- **Real case study** (`examples/real-case.md`): Goertek (歌尔股份) & Apple VR supply chain. Demonstrates triangulation across 4 peers, financial cross-validation of 46.7% customer concentration, and ODM business model detection.
+
+### Changed
+- Workflow: 8 → 10 steps. Step 5: triangulation, Step 7: financial cross-validation. Subsequent steps renumbered.
+- Direction selection added to Step 1 (forward/reverse).
+- Step 2 split into 2A (gap) and 2B (patent dominance for reverse).
+- Confidence scoring: 3-layer adjustment (trade secret → triangulation boost → financial cap).
+- I/O contract, Tool Integration, Key Principles, frontmatter, trigger keywords all expanded.
+- README.md rewritten for v0.3.0.
+- `examples/sample-output.md` updated with triangulation and financial sections.
+
 ## [0.2.0] - 2026-07-20
 
 ### Added
