@@ -79,12 +79,19 @@
 
 ## Step 4: Multi-lead parallel verification
 
-**Goal**: Activate 5 leads in parallel. Detailed scoring rules in `checklists.md`.
+**Goal**: Activate 5 leads in parallel, each with an independent confidence score. **Every lead must record its evidence timestamp** (evidence freshness, v0.4.0). Detailed scoring rules in `checklists.md`.
 
-### Lead 1 · Patent ownership (confidence: medium)
+### Lead 1 · Patent ownership + quality (confidence: medium, adjusted by quality)
 - Forward: Search T's patent holders, identify primary owner B
 - Reverse: For each candidate A, search whether A's products use T and whether A holds T patents
 - Check patent status, timeline, NPE risk
+- **Patent quality scoring (v0.4.0)**: Do not count patents — score them. See `checklists.md` for the 4-factor quality score:
+  - Claim breadth (independent claims, scope)
+  - Citation impact (forward citations, whether later patents build on it)
+  - Family size (PCT/multi-jurisdiction vs single-country)
+  - Legal status (granted & maintained vs lapsed/revoked/pending)
+  - Quality levels: Core (≥8/12), Supporting (4-7/12), Peripheral (0-3/12)
+- Quality-adjust Lead 1 confidence: Core patents → confidence can reach high; Peripheral patents only → cap at low
 
 ### Lead 2 · Corporate affiliation (confidence: high)
 - Search A-B affiliation via Tianyancha / Qichacha / Qixinbao
@@ -104,40 +111,84 @@
 - Physical evidence of B components in A's products
 - Teardown reports / BOM analysis / product certifications
 
-**Output**: Per-lead hit status + per-lead confidence
+**Evidence freshness (v0.4.0, applies to ALL leads)**:
+- Record the date of each evidence item
+- Freshness levels:
+  - **Current** (≤12 months): full weight
+  - **Moderate** (12-18 months): normal weight, flag in report
+  - **Stale** (>18 months): down-weight one level; cannot alone support "high" confidence
+  - **Unknown date**: treat as stale, flag prominently
+- A conclusion resting primarily on stale evidence is capped at "medium"
 
-## Step 5: Competitive triangulation (NEW v0.3.0)
+**Output**: Per-lead hit status + per-lead confidence + patent quality score (Lead 1) + evidence timestamps
+
+## Step 5: Competitive triangulation
 
 **Goal**: Check whether A's industry peers show the same patent gap pattern, providing cross-company corroboration.
 
-**Why this matters**: A single company's patent gap could be random or internal. But if 3-5 industry peers ALL lack T's patents and ALL point to the same technology owner B, the pattern is unlikely to be coincidental — it strongly suggests B controls essential technology for the entire industry.
+**Why this matters**: A single company's patent gap could be random or internal. But if 3-5 industry peers ALL lack T's patents and ALL point to the same technology owner B, the pattern is unlikely to be coincidental.
 
 **Operations**:
-1. Identify A's direct competitors / industry peers (C₁, C₂...Cₙ):
-   - Same industry classification (SW / CITIC sector)
-   - Similar product portfolio and revenue composition
-   - Target: 3-10 peer companies
-2. For each peer Cᵢ, check patent gap for technology T:
-   - Search Cᵢ's patent portfolio for T-related patents
-   - Record: has patents / has partial patents / has no patents
-3. For peers with gaps, check where T likely comes from:
-   - Do they also point to the same B? (patent ownership, procurement hints, teardown)
-   - Or do different peers point to different owners?
-4. Triangulation scoring:
+1. Identify A's direct competitors / industry peers (C₁, C₂...Cₙ): 3-10 peers, same industry classification, similar product/revenue profile
+2. For each peer Cᵢ, check patent gap for T
+3. For peers with gaps, check where T likely comes from (same B or different owners)
+4. **Quality-aware triangulation (v0.4.0)**: If multiple peers converge on B AND B's patents score as Core quality → strongest possible signal. If B's patents are only Peripheral, convergence is weaker (B may be a paper tiger holding low-value patents).
 
 | Pattern | Interpretation | Triangulation boost |
 |---------|---------------|---------------------|
-| ≥3 peers have same gap, all point to same B | Industry-wide dependency on B | **+2 levels** (low→high, medium→high) |
-| ≥2 peers have same gap, all point to B | Significant corroboration | **+1 level** |
-| 1 peer has same gap, points to B | Mild corroboration | No boost, note in report |
-| Peers have gaps but point to different owners | Fragmented supply → B's position weaker | **No boost**, flag fragmentation |
-| Peers have T patents or different tech paths | A is the outlier → A's gap may be self-inflicted | **No boost**, investigate why A alone lacks |
+| ≥3 peers same gap → same B, B=Core quality | Industry-wide dependency on genuine tech leader | **+2 levels** |
+| ≥3 peers same gap → same B (any quality) | Industry-wide dependency | **+2 levels** |
+| ≥2 peers same gap → same B | Significant corroboration | **+1 level** |
+| 1 peer same gap → B | Mild corroboration | No boost |
+| Peers point to different owners | Fragmented supply → B weaker | No boost, flag |
+| Peers have T patents | A is the outlier → investigate | No boost |
 
-5. **Reverse workflow triangulation**: If analyzing B→downstream, check whether multiple unrelated companies in different sub-industries all depend on B's T → the wider the customer diversity, the stronger B's technology-gatekeeper position.
+**Output**: Peer gap matrix + triangulation boost + quality-aware interpretation
 
-**Output**: Peer gap matrix + triangulation boost applied + interpretation
+## Step 6: Negative verification (NEW v0.4.0)
 
-## Step 6: Multi-lead fusion + confidence scoring
+**Goal**: Actively attempt to DISPROVE the supply-chain inference. An inference that survives active disproof is far more credible than one that was never tested.
+
+**Core principle**: Positive evidence (patents, affiliations, teardowns) can be coincidental or over-interpreted. Negative verification searches for the "why not" — evidence that B is NOT A's supplier despite the positive signals.
+
+**Operations** — search each of the following for counter-evidence:
+
+1. **Revenue/scale mismatch**:
+   - Does B's reported revenue exceed what A could plausibly buy? (if B's revenue is 100x A's procurement budget for T, B may not be A's supplier — or A is trivial for B)
+   - Does B's capacity announcement target products A doesn't make?
+
+2. **Product-category mismatch**:
+   - Does B's product line actually include what A needs? (B holds T patents but may not manufacture the specific product variant A uses)
+   - Check B's product catalog / website for the specific component A needs
+
+3. **Geographic/logistics infeasibility**:
+   - Are A and B in incompatible geographies for the component type? (some components are regional by nature — e.g., regulatory, shipping cost)
+   - Check trade routes, tariffs, local-content requirements
+
+4. **Explicit customer-list exclusion**:
+   - If B publicly lists customers (annual report top-5, website case studies, press releases), does it explicitly EXCLUDE A?
+   - If B's top-5 customer list is disclosed and A is not among them AND B's concentration is high → strong negative evidence
+
+5. **Contractor/competitor relationship**:
+   - Is A actually a competitor of B in T? (A wouldn't buy from its direct competitor unless forced)
+   - Is A's product positioned as a substitute for B's?
+
+6. **Patent-licensing-only alternative**:
+   - Does A license B's patents but buy the physical product from a THIRD party (C)? If so, B is a licensor, not a supplier — the supply chain passes through C.
+
+**Negative verification outcome**:
+
+| Outcome | Impact on confidence |
+|---------|---------------------|
+| Negative evidence FOUND (any of the above confirmed) | **Reduce confidence by 1-2 levels**, flag the specific contradiction. If the contradiction is fundamental (e.g., A is B's direct competitor), the inference may be overturned. |
+| Negative search performed, no evidence found | **Confidence confirmed** — record "negative verification passed" in report; supports high confidence |
+| Negative search could not be performed (data unavailable) | Note in report; confidence unchanged but flagged as "negative verification incomplete" |
+
+**Critical rule**: The report MUST document that negative verification was attempted. A report without negative verification is incomplete.
+
+**Output**: Negative evidence found/not found + specifics + impact on confidence
+
+## Step 7: Multi-lead fusion + confidence scoring
 
 **Goal**: Cross-validate and produce an overall determination.
 
@@ -151,84 +202,75 @@
 - Trade secret "high" + no procurement/teardown → cap at "low"
 - Trade secret "high" + procurement/teardown confirms → no cap
 
-**Triangulation boost** (v0.3.0, applied after base scoring):
+**Triangulation boost** (applied after base scoring):
 - +2 levels if ≥3 peers confirm same gap → same B
 - +1 level if ≥2 peers confirm same gap → same B
-- Triangulation boost CANNOT override trade secret cap
+- Triangulation cannot override trade secret cap
+
+**Negative verification adjustment (v0.4.0)**:
+- Negative evidence found → reduce by 1-2 levels (or overturn if fundamental contradiction)
+- Negative verification passed → no change (recorded as supporting)
+- Negative verification incomplete → no change, flag in report
+
+**Evidence freshness adjustment (v0.4.0)**:
+- If the conclusion rests primarily on stale (>18 months) evidence → cap at "medium"
+- Each lead using stale evidence is down-weighted one level before fusion
+- If the only corroborating leads are stale → overall capped at "medium"
 
 **Role determination**:
 - Leads 4/5 hit (procurement / teardown) → B is A's direct supplier (forward) / A is B's customer (reverse)
 - Only leads 1/2 hit → technology licensor or indirect affiliation
 - Lead 1 hit but B is NPE → B licenses only, not in supply chain
 
-**Output**: Overall confidence + triangulation boost applied + B's/A's role
+**Output**: Overall confidence + all adjustments applied + B's/A's role
 
-## Step 7: Financial cross-validation (NEW v0.3.0)
+## Step 8: Financial cross-validation
 
-**Goal**: Cross-validate the inferred supply-chain relationship against hard financial data. No inference should reach "high" confidence without financial corroboration.
-
-**Why this matters**: Patent gaps, corporate affiliations, and even teardowns can point to a relationship that exists but is economically immaterial. Financial data provides the "size of the bet" — how much does the relationship matter?
+**Goal**: Cross-validate the inferred supply-chain relationship against hard financial data.
 
 **Operations** (select applicable checks based on direction):
 
 ### Forward direction (A → find supplier B):
-1. **A's supplier concentration** (westock / tushare financial data):
-   - Check A's annual report: top-5 supplier list, supplier concentration ratio
-   - Is B or a company matching B's profile named?
-   - If supplier #1 is an unnamed "Company X" matching B's revenue profile → circumstantial
-   - Supplier concentration >30% with unnamed top supplier → worth investigating
-
-2. **A's procurement category matching**:
-   - Does A's disclosed procurement categories align with B's products?
-   - Check procurement proportion changes over time (growing share = deepening relationship)
-
-3. **B's customer concentration**:
-   - If B is listed: check B's top-5 customer list, customer concentration
-   - Does a customer match A's revenue contribution profile?
-   - If B has a single large customer contributing >20% of revenue → check if it matches A
-
-4. **Accounts receivable / payable patterns**:
-   - A's AP aging vs B's AR aging — do patterns correlate?
-   - Related-party transaction disclosures
+1. A's supplier concentration (top-5 supplier list, concentration ratio)
+2. A's procurement category matching (does A's procurement align with B's products?)
+3. B's customer concentration (if listed: top-5 customers, concentration)
+4. Accounts receivable / payable patterns, related-party disclosures
 
 ### Reverse direction (B → find customers A):
-1. **B's customer concentration**: Who buys from B? Top-5 customer revenue breakdown
-2. **B's revenue by industry segment**: Which downstream industries contribute most?
-3. **For each candidate A**: Check A's top-5 supplier list for B or B's product category
-4. **Related-party disclosures**: Check B and candidates for related-party transactions
+1. B's customer concentration, revenue by industry segment
+2. For each candidate A: top-5 supplier list, related-party disclosures
 
 ### Financial corroboration scoring:
 
-| Finding | Corroboration level | Confidence effect |
-|---------|---------------------|-------------------|
-| B explicitly named as A's supplier (or A as B's customer) | **Strong** | No cap, confirms relationship |
-| Procurement category + revenue size matches | **Medium** | Supports but does not confirm |
-| Related-party disclosures confirm | **Strong** | Confirms with financial detail |
-| No financial evidence found | **None** | **Cap overall confidence at "medium"** |
-| Financial data contradicts inference | **Negative** | **Reduce confidence by 1 level, flag inconsistency** |
-
-**Critical rule**: If overall confidence after Step 6 (fusion + triangulation) is "high" but financial corroboration is "none" → **cap at "medium"**. The inference is promising but unverified financially. Only procurement/teardown physical evidence can maintain "high" without financial data.
+| Finding | Corroboration | Confidence effect |
+|---------|---------------|-------------------|
+| B named as A's supplier / A as B's customer | **Strong** | No cap, confirms |
+| Procurement category + revenue size matches | **Medium** | Supports |
+| Related-party disclosures confirm | **Strong** | Confirms |
+| No financial evidence | **None** | Cap at "medium" |
+| Financial data contradicts | **Negative** | Reduce 1 level, flag |
 
 **Output**: Financial corroboration level + specific evidence + confidence cap applied
 
-## Step 8: Alternative-hypothesis check
+## Step 9: Alternative-hypothesis check
 
 See `checklists.md`. Explicitly exclude alternative explanations for each inference.
 
-## Step 9: Counter-intelligence check
+## Step 10: Counter-intelligence check
 
 See `checklists.md`. Check for shell companies / dispersed patents / decoy filings.
 
-## Step 10: Output report
+## Step 11: Output report
 
 Organize per the I/O contract in SKILL.md. Must include:
 - Analysis direction (forward / reverse)
 - Relationship determination (incl. role)
 - Trade secret assessment result
-- Evidence chain (5-lead hit table + confidence)
-- **Triangulation result** (peer gap matrix + boost applied)
-- **Financial corroboration** (evidence + corroboration level)
-- Overall confidence + rationale (triangulation boost + financial cap transparent)
+- Evidence chain (5-lead hit table + confidence + **patent quality scores** + **evidence timestamps**)
+- Triangulation result (peer gap matrix + boost applied)
+- **Negative verification result** (searched + found/not found + impact)
+- Financial corroboration (evidence + level)
+- Overall confidence + rationale (all adjustments transparent: trade secret, triangulation, negative verification, evidence freshness, financial)
 - Alternative-hypothesis list
 - Counter-intelligence risk flag
 - Follow-up verification suggestions
@@ -250,27 +292,24 @@ Trigger when the user provides a technology-owning company B and wants to identi
 
 ### R1: Confirm B's patent dominance
 - Run Step 2B to validate B's position in T
+- **Apply patent quality scoring** to B's core patents — dominance + Core quality = genuine gatekeeper; dominance + Peripheral quality = weak gatekeeper
 - If B is not dominant → warn and proceed at reduced confidence
 
 ### R2: Identify technology T and its necessity
 - What exactly does B's patented technology enable?
 - Is T a must-have (essential standard) or a nice-to-have (one of many options)?
-- Essential standard (e.g., 5G SEP, HDMI) → downstream dependency is automatic
-- Non-essential → need product-level evidence for each candidate A
+- Essential standard → downstream dependency is automatic; non-essential → need product-level evidence
 
 ### R3: Candidate screening
-- Identify all companies whose products plausibly need T:
-  - Industry classification search
-  - Product announcements mentioning T or B
-  - Trade show / conference participation (companies showcasing products using B's T)
-  - Teardown reports naming B components
+- Identify all companies whose products plausibly need T
 - Build candidate list: A₁, A₂...Aₙ
 
 ### R4: For each high-priority candidate, run abbreviated forward workflow
 - Step 2A: Confirm Aᵢ lacks T patents
 - Step 3: Quick trade secret check (reduced weight)
-- Step 4: Run 5 leads for Aᵢ→B
-- Step 7: Financial cross-validation (check B's customer list for Aᵢ)
+- Step 4: Run 5 leads for Aᵢ→B (with evidence timestamps)
+- Step 6: Negative verification per candidate
+- Step 8: Financial cross-validation (check B's customer list for Aᵢ)
 
 ### R5: Aggregate report
 - List all confirmed customers with per-customer confidence

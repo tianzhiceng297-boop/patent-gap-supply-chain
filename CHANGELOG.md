@@ -3,6 +3,27 @@
 All notable changes to this skill are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/), adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-08-06
+
+### Added
+- **Patent quality scoring** (Step 4 / Lead 1): 4-factor quality score — claim breadth, citation impact, family size, legal status (0-12 scale). Core (≥8/12) / Supporting (4-7) / Peripheral (0-3) levels. Core patents allow Lead 1 to reach high confidence; peripheral-only caps at low. Quality-aware triangulation: convergence on a Core-quality holder is a stronger signal than convergence on a peripheral holder.
+- **Negative verification** (Step 6): Active disproof workflow. Search 5 counter-evidence classes — revenue/scale mismatch, product-category mismatch, geographic/logistics infeasibility, explicit customer-list exclusion, contractor/competitor relationship. Negative evidence found → reduce confidence 1-2 levels (or overturn); negative verification passed → supports inference; incomplete → flagged.
+- **Evidence freshness tracking**: Every lead carries an evidence timestamp. Freshness levels: Current (≤12mo, full weight) / Moderate (12-18mo, flag) / Stale (>18mo, down-weight one level) / Unknown (treat as stale). Conclusions resting primarily on stale evidence capped at "medium". Report includes evidence freshness table.
+
+### Changed
+- Workflow: 10 → 11 steps (new Step 6: Negative verification; subsequent steps renumbered)
+- Lead 1 renamed to "Patent ownership + quality" with quality-adjusted confidence
+- Fusion rules now include 5 adjustment layers: trade secret → triangulation → negative verification (new) → evidence freshness (new) → financial cap
+- Per-lead confidence table updated with patent quality and freshness dimensions
+- Triangulation now quality-aware (convergence on Core-quality holder = strongest signal)
+- Reverse workflow appendix: R1 applies patent quality scoring to B's dominance check; R4 adds negative verification per candidate
+- Key Principles: added patent-quality, negative-verification, and evidence-freshness principles
+- Frontmatter description and trigger keywords expanded (专利质量, 负向验证, patent quality, negative verification)
+- Tool Integration table: added negative verification, evidence freshness rows
+- I/O contract: added patent quality score, evidence timestamp, negative verification result fields
+- README.md rewritten for v0.4.0
+- `examples/sample-output.md`: updated to full 11-step format with quality scoring, negative verification, freshness table
+
 ## [0.3.0] - 2026-07-21
 
 ### Added
@@ -16,7 +37,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/), adheres to [Sem
 - Workflow: 8 → 10 steps. Step 5: triangulation, Step 7: financial cross-validation. Subsequent steps renumbered.
 - Direction selection added to Step 1 (forward/reverse).
 - Step 2 split into 2A (gap) and 2B (patent dominance for reverse).
-- Confidence scoring: 3-layer adjustment (trade secret → triangulation boost → financial cap).
+- Confidence scoring: 3-layer adjustment (trade secret → triangulation → financial cap).
 - I/O contract, Tool Integration, Key Principles, frontmatter, trigger keywords all expanded.
 - README.md rewritten for v0.3.0.
 - `examples/sample-output.md` updated with triangulation and financial sections.

@@ -1,6 +1,6 @@
 # Sample Output
 
-A worked example showing the full v0.3.0 report format for a **fictional** case with triangulation and financial cross-validation. All companies, patents, and data below are illustrative only.
+A worked example showing the full v0.4.0 report format for a **fictional** case with triangulation, negative verification, patent quality scoring, and evidence freshness tracking. All companies, patents, and data below are illustrative only.
 
 ---
 
@@ -42,111 +42,149 @@ Excluded legitimate-use scenarios:
 |-----------|------------|--------|
 | 1. Industry norms | mmWave antenna is RF hardware, not a process/formula; easy to reverse-engineer | Dependency |
 | 2. NDA culture | NexRouter is a standard networking company; no notable NDA litigation | Neutral |
-| 3. Patent filing pattern | NexRouter files actively in firmware/SoC but zero in RF — no evidence of strategic selectivity | Neutral |
+| 3. Patent filing pattern | NexRouter files actively in firmware/SoC but zero in RF — no strategic selectivity | Neutral |
 | 4. R&D vs. patent output | NexRouter lists 0 RF engineers and 0 RF R&D budget in filings | Dependency |
 | 5. Technology nature | mmWave antenna is a physical hardware component, identifiable in teardown | Dependency |
-| 6. Trade secret litigation | No trade secret litigation in mmWave antenna industry; patent litigation is the norm | Dependency |
+| 6. Trade secret litigation | No trade secret litigation in mmWave antenna industry | Dependency |
 
 **Trade secret likelihood**: 0/6 → **Trade secret unlikely**. Proceed.
 
 ## Step 4: Multi-lead parallel verification
 
-| Lead | Hit | Detail | Confidence |
-|------|-----|--------|------------|
-| 1. Patent ownership | Yes | WaveAnt Technologies holds 47 mmWave-antenna patents (CN + US), core filings 2019-2021, before NexRouter 5G Pro launch (2024) | Medium |
-| 2. Corporate affiliation | Yes | WaveAnt and NexRouter co-founded a JV "NexWave RF" in 2023 (registered capital 50M, 60/40 split) | High |
-| 3. Talent flow | Yes | 3 WaveAnt antenna engineers joined NexRouter in 2023-2024 (LinkedIn / job sites) | Medium |
-| 4. Procurement | Yes | NexRouter 2023 annual report lists "mmWave antenna module" as a top-5 procurement category; supplier not named | Medium |
-| 5. Product teardown | Yes | TechInsights teardown of 5G Pro (2024) identifies antenna module stamped "WaveAnt WN-5G39" | Very high |
+### Lead 1 · Patent ownership + quality
+
+WaveAnt Technologies holds 47 mmWave-antenna patents. **Patent quality scoring**:
+
+| Quality factor | Score | Basis |
+|----------------|-------|-------|
+| Claim breadth | 3/3 | Independent claims cover the phased-array steering mechanism itself |
+| Citation impact | 3/3 | 41% of later mmWave-antenna patents cite WaveAnt's core family |
+| Family size | 3/3 | PCT + US/CN/EU national entries |
+| Legal status | 2/3 | Granted, maintenance current on core family |
+| **Total** | **11/12** | **Core quality** |
+
+Lead 1 confidence: **High** (Core quality + valid timeline, core filings 2019-2021, before 5G Pro launch 2024). Evidence date: 2024-08 (current).
+
+### Leads 2-5
+
+| Lead | Hit | Detail | Confidence | Evidence date | Freshness |
+|------|-----|--------|------------|---------------|-----------|
+| 2. Corporate affiliation | Yes | Co-founded JV "NexWave RF" (2023), 60/40 split | High | 2023-06 | Stale (>18mo) |
+| 3. Talent flow | Yes | 3 WaveAnt engineers → NexRouter (2023-24) | Medium | 2024-03 | Moderate |
+| 4. Procurement | Yes | 2023 annual report: "mmWave antenna module" top-5 procurement, supplier unnamed | Medium | 2024-04 | Moderate |
+| 5. Product teardown | Yes | TechInsights teardown identifies "WaveAnt WN-5G39" module | Very high | 2025-11 | **Current** |
+
+**Freshness note**: Lead 2 (JV) evidence is from 2023 — flagged as stale, down-weighted to Medium. Leads 4/5 are the freshest and strongest.
 
 ## Step 5: Competitive triangulation
 
 A's peers in networking equipment:
 
-| Peer | Company | Has mmWave antenna patents? | Points to same B? |
-|------|---------|----------------------------|-------------------|
-| C₁ | RouteMax Corp | Zero mmWave patents | Yes — also uses WaveAnt (teardown confirms WN-5G37 module) |
-| C₂ | NetFusion Ltd | Zero mmWave patents | Yes — procurement category matches |
-| C₃ | SpeedLinx Inc | Zero mmWave patents | Yes — JV with WaveAnt (2022) |
-| C₄ | TeleCore GmbH | **Has own mmWave patents** | No — internal development |
+| Peer | Has mmWave patents? | Points to same B? | B's quality for peer? |
+|------|--------------------|-------------------|----------------------|
+| C₁ RouteMax | Zero | Yes — teardown shows WN-5G37 | Core (WaveAnt) |
+| C₂ NetFusion | Zero | Yes — procurement category matches | Core |
+| C₃ SpeedLinx | Zero | Yes — JV with WaveAnt (2022) | Core |
+| C₄ TeleCore | **Has own** | No — internal development | — |
 
-**Triangulation result**: 3/4 peers all lack T patents, all point to WaveAnt. **Triangulation boost: +2 levels.**
+**Triangulation result**: 3/4 peers all lack T patents, all point to WaveAnt, and WaveAnt's patents score **Core** quality across the board. **Triangulation boost: +2 levels** (quality-confirmed convergence).
 
-## Step 6: Fusion + confidence (base)
+## Step 6: Negative verification
 
-- 5 leads hit, 4 corroborate (patent + JV + talent + teardown all point to WaveAnt)
-- Lead 5 (teardown) = very high
-- Trade secret: unlikely → no cap
-- Base confidence: **High**.
+Actively searched for evidence that WaveAnt is NOT NexRouter's supplier:
 
-**Triangulation boost applied**: +2 levels — already at High, remains High (no ceiling exceeded).
+| Negative check | Result |
+|----------------|--------|
+| Revenue mismatch | **No** — WaveAnt revenue (~¥900M) is consistent with supplying 5+ networking companies; NexRouter's estimated antenna spend (~¥380M) is a plausible share |
+| Product-category mismatch | **No** — WaveAnt's catalog includes the exact module type (5G mmWave array) found in teardown |
+| Geographic infeasibility | **No** — both based in Guangdong, logistics normal |
+| Customer-list exclusion | **Partially checked** — WaveAnt is pre-IPO, no public customer list; could not fully verify |
+| Contractor/competitor | **No** — WaveAnt makes antenna modules; NexRouter makes routers; not competitors |
+| Third-party licensing | **No** — teardown shows WaveAnt-branded module, not a third-party rebrand |
 
-Role determination: Lead 4/5 hit → WaveAnt is a **direct supplier**.
+**Negative verification outcome**: Search performed, no fundamental negative evidence found. One gap: customer list unavailable (WaveAnt pre-IPO). **Negative verification passed** (with noted data gap).
 
-## Step 7: Financial cross-validation
+## Step 7: Fusion + confidence
+
+- Leads: 5/5 hit. Lead 5 (teardown, current evidence) = very high. Lead 1 (Core quality) = high. Leads 2-4 = medium (with freshness adjustments).
+- Base confidence: **High** (≥2 high leads corroborating).
+- Triangulation boost: +2 → remains High (already at ceiling).
+- Negative verification: passed → no reduction.
+- Evidence freshness: strongest evidence (teardown 2025-11) is current → no freshness cap.
+- **Pre-financial confidence: High**.
+
+Role determination: Leads 4/5 hit → WaveAnt is a **direct supplier**.
+
+## Step 8: Financial cross-validation
 
 | Check | Result | Corroboration |
 |-------|--------|---------------|
-| NexRouter top-5 supplier list | Supplier #3: "Antenna module supplier" with 12.4% of procurement — revenue contribution ¥380M matches WaveAnt's reported revenue | **Medium** |
-| WaveAnt customer concentration | WaveAnt IPO prospectus (2024) shows Customer #1 = 22% of revenue, profile matches NexRouter | **Medium** |
-| Accounts receivable | WaveAnt AR aging shows 60% from one customer with 90-day terms — matches NexRouter's AP profile | **Medium** |
+| NexRouter top-5 suppliers | Supplier #3 "antenna module supplier" = 12.4% of procurement, ¥380M — matches WaveAnt revenue profile | **Medium** |
+| WaveAnt customer concentration (pre-IPO filings) | Customer #1 = 22% of revenue, profile matches NexRouter | **Medium** |
+| AR/AP patterns | WaveAnt AR 60% from one customer, 90-day terms — matches NexRouter AP | **Medium** |
 
-**Financial corroboration**: **Medium** (category + revenue scale matches, but not explicitly named).
+**Financial corroboration**: **Medium** (category + revenue scale match, no explicit naming due to pre-IPO opacity). **No cap applied** (medium corroboration + strong physical evidence).
 
-**Financial cap**: Medium corroboration → no cap applied.
-
-## Step 8: Alternative-hypothesis check
+## Step 9: Alternative-hypothesis check
 
 | Hypothesis | Excluded? | Basis |
 |-----------|-----------|-------|
 | Gap due to cross-licensing | Yes | No public record |
-| WaveAnt is NPE (license only) | Yes | WaveAnt manufactures physical modules (teardown stamp) |
-| Third-party module embedding WaveAnt patent | Partially | Teardown shows direct WaveAnt module |
-| NexRouter-WaveAnt tie is pure financial investment | Yes | JV is operational (NexWave RF) + direct supply |
-| Gap is trade secret protection | Yes | 0/6 indicators; no RF R&D |
-| Relationship is economically immaterial | Yes | 12.4% of procurement → material |
-| Gap is because mmWave is a purchased component A wouldn't patent | Partially | Possible — but the JV + teardown evidence overrides this |
+| WaveAnt is NPE | Yes | Manufactures physical modules (teardown) |
+| Third-party module embedding WaveAnt patent | Yes | Teardown shows direct WaveAnt module |
+| Pure financial investment tie | Yes | JV operational + direct supply |
+| Trade secret protection | Yes | 0/6 indicators, no RF R&D |
+| Relationship economically immaterial | Yes | 12.4% of procurement |
+| B's patents are peripheral (paper tiger) | Yes | Core quality 11/12 |
 
 Unexcluded: none material.
 
-## Step 9: Counter-intelligence check
+## Step 10: Counter-intelligence check
 
 | Check | Result |
 |-------|--------|
-| WaveAnt patent ownership abnormally dispersed? | No — 47 patents under WaveAnt directly |
+| Patent ownership dispersed? | No — 47 patents under WaveAnt directly |
 | Shell companies? | No — real operating company |
-| NexRouter deliberately not filing? | Unlikely — files aggressively in core areas |
-| Frequent patent transfers? | No |
-| Supplier disclosure vague? | **Flag** — not explicitly named |
+| Deliberate non-filing? | Unlikely — files aggressively in core areas |
+| Frequent transfers? | No |
+| Supplier disclosure vague? | **Flag** — annual report doesn't name supplier |
 
 Counter-intelligence risk: **Low**. One minor flag.
 
-## Step 10: Output report
+## Step 11: Output report
 
 ### Supply-Chain Inference Report — NexRouter Inc.
 
 **Direction**: Forward (patent gap → supplier)
 
-**Trade secret assessment**: Unlikely (0/6 indicators). NexRouter has no R&D presence in mmWave antenna.
+**Trade secret assessment**: Unlikely (0/6 indicators).
 
-**Triangulation**: 3/4 industry peers share the same patent gap, all pointing to WaveAnt. Strong cross-company corroboration.
+**Patent quality**: WaveAnt's core family scores **11/12 (Core)** — broad claims, high citations, international family, active status.
 
-**Relationship determination**: WaveAnt Technologies has entered NexRouter's supply chain as a **direct supplier** of mmWave antenna modules.
+**Evidence freshness**: Teardown (2025-11) current; JV evidence (2023) flagged stale and down-weighted.
+
+**Triangulation**: 3/4 peers share the gap, all converge on WaveAnt, Core-quality confirmation. +2 boost.
+
+**Negative verification**: Performed, passed (with pre-IPO customer-list data gap noted).
+
+**Relationship determination**: WaveAnt Technologies is a **direct supplier** of mmWave antenna modules to NexRouter.
 
 **Evidence chain**:
 
-| # | Lead | Hit | Confidence |
-|---|------|-----|------------|
-| 1 | Patent ownership | WaveAnt holds 47 mmWave-antenna patents, pre-dating 5G Pro | Medium |
-| 2 | Corporate affiliation | Co-founded JV "NexWave RF" (2023) | High |
-| 3 | Talent flow | 3 WaveAnt engineers → NexRouter (2023-24) | Medium |
-| 4 | Procurement | Annual report lists mmWave antenna module as top-5 procurement | Medium |
-| 5 | Product teardown | Teardown identifies "WaveAnt WN-5G39" module | Very high |
+| # | Lead | Hit | Confidence | Quality/Freshness |
+|---|------|-----|------------|-------------------|
+| 1 | Patent ownership | WaveAnt 47 patents, Core 11/12 | High | Quality-adjusted |
+| 2 | Corporate affiliation | JV "NexWave RF" (2023) | Medium | Stale evidence, down-weighted |
+| 3 | Talent flow | 3 engineers → NexRouter | Medium | Moderate freshness |
+| 4 | Procurement | Top-5 category, unnamed | Medium | Moderate freshness |
+| 5 | Product teardown | "WaveAnt WN-5G39" module | Very high | **Current** (2025-11) |
 
 **Confidence stack**:
-- Base fusion: 5/5 leads hit, 4 corroborating → **High**
-- Triangulation boost: 3 peers confirm same gap → B → +2 levels → remains **High**
-- Financial corroboration: Medium (procurement category + revenue scale match) → no cap
+- Base fusion: 5/5 leads, 2 high + very high corroborating → **High**
+- Triangulation: +2 (quality-confirmed) → High (ceiling)
+- Negative verification: passed → no change
+- Evidence freshness: no cap (strongest evidence current)
+- Financial: Medium corroboration → no cap
 - **Final confidence: High**
 
 **Alternative hypotheses**: All material alternatives excluded.
@@ -154,7 +192,7 @@ Counter-intelligence risk: **Low**. One minor flag.
 **Counter-intelligence risk**: Low.
 
 **Follow-up verification**:
-- Confirm WaveAnt revenue exposure to NexRouter via WaveAnt's post-IPO filings
-- Monitor NexWave RF JV activity for deepening integration
-- Track WaveAnt patent filings post-2024 for co-development indicators
-- Watch for RouteMax and NetFusion teardown results (triangulation peers)
+- Re-verify JV "NexWave RF" activity (stale evidence, 2023)
+- Await WaveAnt IPO filings for explicit customer naming
+- Monitor WaveAnt patent filings post-2024 for co-development indicators
+- Watch RouteMax/NetFusion teardown results (triangulation peers)
